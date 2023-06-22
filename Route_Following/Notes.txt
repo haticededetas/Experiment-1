@@ -1,0 +1,12 @@
+Here are the notes for future developers:
+
+
+
+### How to define the streets to follow and ignore grass and plants:
+- To define the walkable areas and prevent the player to walk through hecken and grass etc., I used NavMesh.
+- I created an empty game object and named it NavMesh. In that game object, I added a NavMeshSurface. 
+	- it was humanoid and walkable.
+	- this was not enough to exclude the grass and hecken.
+- Next, I opened relief_vertieft object in the inspector and I added a component "NavMeshModifier".
+	I clikced "override area" and chose 'not walkable' area type.
+- Then, I opened NavMesh game object and clicked "bake" in the inspector.
