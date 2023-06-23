@@ -13,6 +13,8 @@ public class PlayerMovement : MonoBehaviour
     private int currentTargetIndex = 0; // Index of the current target
     private bool shouldMove = false; // Flag to control player movement
 
+
+
     private void Start()
     {
         navMeshAgent = GetComponent<NavMeshAgent>();
