@@ -22,7 +22,5 @@ public class CsvExporter : MonoBehaviour
                 writer.WriteLine(dataRow);
             }
         }
-        Debug.Log("The file is saved.");
-        Debug.Log("File Path: " + filePath);
     }
 }

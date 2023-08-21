@@ -456,7 +456,7 @@ GameObject:
   - component: {fileID: 666873313}
   - component: {fileID: 666873312}
   m_Layer: 5
-  m_Name: Canvas
+  m_Name: MessageCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -560,7 +560,7 @@ GameObject:
   - component: {fileID: 684182756}
   - component: {fileID: 684182755}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Alert
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1109,12 +1109,6 @@ MonoBehaviour:
     correctAnswer: 0
   - target: {fileID: 94043175}
     correctAnswer: 0
-  - target: {fileID: 2084269987}
-    correctAnswer: 1
-  - target: {fileID: 1033637076}
-    correctAnswer: 2
-  - target: {fileID: 898817938}
-    correctAnswer: 1
   navMeshAgent: {fileID: 963194229}
   alertMessageComponent: {fileID: 1259837839}
   initialOrientation: {fileID: 335728500}

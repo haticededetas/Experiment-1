@@ -3,6 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
 using System.IO;
+using System;
+using UnityEngine.UIElements;
+using UnityEngine.SceneManagement;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -52,15 +55,27 @@ public class PlayerMovement : MonoBehaviour
 
     }
 
+    // Prepate file name with subID and time 
+    public static string SubID; // I declared this here, at I have reference to it in the GetSubID script where I defined a function to get SubID
+
+
+    // Combine formatted date and time with filename
+    
+    private string fileName; // define variable
+
     List<Trial_Data> data_list = new List<Trial_Data>(); // the list which consists of trial data
-    private string fileName = "data.csv";
+    
+    
+    
 
 
     public string filePath; // File path for the CSV file
-    public DecisionPoint[] decisionPoints; // Array of decision points
+      
     private string decision_point_name; // It will be used to save data correctly
-    
-    
+
+    public DecisionPoint[] decisionPoints; // Array of decision points
+
+
     private float rotationSpeed = 30f; // Speed at which the player rotates towards the target
     private float rotationTimeLimit = 30f; // Time limit for rotation (in seconds)
 
@@ -105,10 +120,14 @@ public class PlayerMovement : MonoBehaviour
 
     private void Start()
     {
-        
+        // Get the name of the current scene
+        string currentSceneName = SceneManager.GetActiveScene().name;
+        string testNumber = LoadLevel.i.ToString(); 
+
+        fileName = SubID + "_" + "Test" + testNumber + "_" + currentSceneName + "_" + GetSubID.exptime + ".csv";
 
         // create 10 rows for the list
-        
+
 
         navMeshAgent = GetComponent<NavMeshAgent>();
         navMeshAgent.autoBraking = false; // Disable auto-braking to allow for smooth rotation
@@ -159,6 +178,7 @@ public class PlayerMovement : MonoBehaviour
                 // Check if all decision points have been reached
                 if (currentDecisionIndex >= decisionPoints.Length)
                 {
+                    
                     Debug.Log("All decision points reached!");
                     shouldMove = false;
 
@@ -170,9 +190,10 @@ public class PlayerMovement : MonoBehaviour
 
                     //SaveDecisionPointsToCSV();
                     csvExporter.ExportListToCsv(data_list, filePath);
-                   
-                    
-                    return;
+
+                    SceneManager.LoadScene("Instructions");
+
+                    //return;
 
                     
                     
