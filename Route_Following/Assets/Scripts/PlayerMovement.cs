@@ -124,7 +124,7 @@ public class PlayerMovement : MonoBehaviour
         string currentSceneName = SceneManager.GetActiveScene().name;
         string testNumber = LoadLevel.i.ToString(); 
 
-        fileName = SubID + "_" + "Test" + testNumber + "_" + currentSceneName + "_" + GetSubID.exptime + ".csv";
+        fileName = "Data/" + SubID + "_" + "Test" + testNumber + "_" + currentSceneName + "_" + GetSubID.exptime + ".csv";
 
         // create 10 rows for the list
 
