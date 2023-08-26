@@ -11,20 +11,20 @@ public class LoadLevel : MonoBehaviour
 
 
     private EditorBuildSettingsScene[] gamescenes = GetSubID.scenes;
-    private int[] sceneSequence = GetSubID.sceneorder;
+    private string[] sceneSequence = GetSubID.sceneorder;
 
     public void LoadNextMap ()
     {
-        if (i == 2) // Check if i is greater than 2
+        if (i == 3) // Check if i is 3
         {
-            Debug.Log("Game ended. i is greater than 2.");
+            Debug.Log("Game ended. i is 3.");
             // You can implement your end game logic here
             return; // Exit the method
         }
 
-        string sceneName = System.IO.Path.GetFileNameWithoutExtension(gamescenes[sceneSequence[i]].path);
-        SceneManager.LoadScene(sceneName);
-        Debug.Log(sceneSequence[0]);
+        //string sceneName = System.IO.Path.GetFileNameWithoutExtension(gamescenes[sceneSequence[i]].path);
+        SceneManager.LoadScene(sceneSequence[i]);
+        Debug.Log(sceneSequence[i]);
         i++;
         
     }

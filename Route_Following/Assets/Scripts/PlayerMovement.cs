@@ -22,10 +22,14 @@ public class PlayerMovement : MonoBehaviour
     {
         public Transform target; // Target object
         public CorrectAnswer correctAnswer; // Correct answer for the decision point
+        public Transform firstLook;
     }
 
+    private bool isLookingAtFirstLook = false;
+    // private bool reachedFirstLook = false;
+
     // Data save
-    
+
     public CsvExporter csvExporter; // Reference to the CsvExporter script
 
 
@@ -33,6 +37,10 @@ public class PlayerMovement : MonoBehaviour
 
     class Trial_Data
     {
+        public string Participant { get; set; } // Participant Number
+        public string TestOrder { get; set; } // TestNumber
+        public string MapName { get; set; } // MapName
+
         public string DP_Name { get; set; } // decision point name
         public int Index_Number { get; set; } // the index number        
         public float ErrorNumber { get; set; } // number of errors
@@ -60,17 +68,17 @@ public class PlayerMovement : MonoBehaviour
 
 
     // Combine formatted date and time with filename
-    
+
     private string fileName; // define variable
 
     List<Trial_Data> data_list = new List<Trial_Data>(); // the list which consists of trial data
-    
-    
-    
+
+
+
 
 
     public string filePath; // File path for the CSV file
-      
+
     private string decision_point_name; // It will be used to save data correctly
 
     public DecisionPoint[] decisionPoints; // Array of decision points
@@ -122,7 +130,7 @@ public class PlayerMovement : MonoBehaviour
     {
         // Get the name of the current scene
         string currentSceneName = SceneManager.GetActiveScene().name;
-        string testNumber = LoadLevel.i.ToString(); 
+        string testNumber = LoadLevel.i.ToString();
 
         fileName = "Data/" + SubID + "_" + "Test" + testNumber + "_" + currentSceneName + "_" + GetSubID.exptime + ".csv";
 
@@ -134,6 +142,8 @@ public class PlayerMovement : MonoBehaviour
 
         // Allow rotation from the start
         isRotating = true;
+
+
 
         // Set the initial rotation based on the initialOrientation object
         if (initialOrientation != null)
@@ -178,7 +188,7 @@ public class PlayerMovement : MonoBehaviour
                 // Check if all decision points have been reached
                 if (currentDecisionIndex >= decisionPoints.Length)
                 {
-                    
+
                     Debug.Log("All decision points reached!");
                     shouldMove = false;
 
@@ -195,8 +205,8 @@ public class PlayerMovement : MonoBehaviour
 
                     //return;
 
-                    
-                    
+
+
                 }
 
                 // Set the initial rotation when arriving at the decision point
@@ -244,7 +254,7 @@ public class PlayerMovement : MonoBehaviour
             // Check if the rotation time limit has been reached or space button is pressed
             if (rotationTimer >= rotationTimeLimit || Input.GetKeyDown(KeyCode.Space))
             {
-                
+
                 transform.rotation = initialRotation;
                 isRotating = false;
 
@@ -258,9 +268,9 @@ public class PlayerMovement : MonoBehaviour
                 decisionTimer += Time.deltaTime;
             }
 
-            
 
-            
+
+
 
 
         }
@@ -279,17 +289,19 @@ public class PlayerMovement : MonoBehaviour
                     (Input.GetKeyDown(KeyCode.D) && currentDecision.correctAnswer == CorrectAnswer.D) ||
                     (Input.GetKeyDown(KeyCode.X) && currentDecision.correctAnswer == CorrectAnswer.X))
                 {
-                    RotateTowardsNextDecisionPoint(currentDecision.target);
-                    decCorrect = true; //decision is correct
-                    
-                    
+                    isLookingAtFirstLook = true;
+                    RotateTowardsNextDecisionPoint(currentDecision);
+                    //RotateTowardsNextDecisionPoint(currentDecision.target);
+
+                    decCorrect = true; //decision is correct                 
+
                     if (currentDecisionIndex == 0)
                     {
                         decision_point_name = "DP1";
                     }
-                    else 
+                    else
                     {
-                        decision_point_name = decisionPoints[currentDecisionIndex-1].target.name;
+                        decision_point_name = decisionPoints[currentDecisionIndex - 1].target.name;
                     }
 
                     RT_rotation_correct = rotationTimer;
@@ -297,8 +309,13 @@ public class PlayerMovement : MonoBehaviour
                     RT_correct = rotationTimer + decisionTimer;
 
 
-                    data_list.Insert(currentDecisionIndex, new Trial_Data { DP_Name = decision_point_name, 
-                        Index_Number = currentDecisionIndex,                         
+                    data_list.Insert(currentDecisionIndex, new Trial_Data
+                    {
+                        Participant = SubID,
+                        TestOrder = LoadLevel.i.ToString(),
+                        MapName = SceneManager.GetActiveScene().name,
+                        DP_Name = decision_point_name,
+                        Index_Number = currentDecisionIndex,
                         ErrorNumber = numberofError,
                         RT_rotation_correct = RT_rotation_correct,
                         RT_decision_correct = RT_decision_correct,
@@ -321,7 +338,7 @@ public class PlayerMovement : MonoBehaviour
 
 
                     // name data file
-                    
+
                     string filePath = Path.Combine(Application.dataPath, fileName);
                     //SaveDecisionPointsToCSV();
                     csvExporter.ExportListToCsv(data_list, filePath);
@@ -350,7 +367,7 @@ public class PlayerMovement : MonoBehaviour
                 {
                     numberofError++;
 
-                    if (numberofError == 1) 
+                    if (numberofError == 1)
                     {
                         RT_rotation_mistake1 = rotationTimer;
                         RT_decision_mistake1 = decisionTimer;
@@ -368,7 +385,7 @@ public class PlayerMovement : MonoBehaviour
                         RT_decision_mistake3 = decisionTimer;
                         RT_mistake3 = RT_rotation_mistake3 + RT_decision_mistake3;
                     }
-                    
+
                     decCorrect = false;
                     string errorMessage = "Your decision is wrong. You can rotate again or make a new response after pressing the space button.";
                     alertMessageComponent.ShowAlert(errorMessage);
@@ -381,33 +398,32 @@ public class PlayerMovement : MonoBehaviour
                 }
             }
 
-            
+
 
 
         }
 
-        
+
     }
 
-    private void RotateTowardsNextDecisionPoint(Transform target)
+    private void RotateTowardsNextDecisionPoint(DecisionPoint decision)
     {
-        // Calculate the direction to the target
-        Vector3 direction = target.position - transform.position;
-        Quaternion targetRotation = Quaternion.LookRotation(direction);
+        Vector3 lookDirection = decision.firstLook.position - transform.position;
+        Quaternion targetLookRotation = Quaternion.LookRotation(lookDirection);
 
-        // Start rotating towards the target destination
-        StartCoroutine(RotateTowardsTarget(targetRotation, () =>
+        StartCoroutine(RotateTowardsTarget(targetLookRotation, () =>
         {
-            // After the rotation is complete, start moving towards the target
+            isLookingAtFirstLook = false; // Finished looking at firstLook
+
+            // Now start moving towards the target directly
             navMeshAgent.enabled = true;
             navMeshAgent.isStopped = false;
-            navMeshAgent.SetDestination(target.position);
+            navMeshAgent.SetDestination(decision.target.position);
             shouldMove = true;
-            canMakeDecision = false; // Disable decision-making until the player reaches the target
         }));
     }
 
-    
+
 
     private IEnumerator RotateTowardsTarget(Quaternion targetRotation, System.Action onRotationComplete)
     {

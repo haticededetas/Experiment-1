@@ -11,7 +11,7 @@ public class GetSubID : MonoBehaviour
 
     public static string exptime; // to get the time of the experiment 
 
-    public static int[] sceneorder; // to define the order of the maps,scenes
+    public static string[] sceneorder; // to define the order of the maps,scenes
 
     public static int subIDint; 
 
@@ -26,11 +26,11 @@ public class GetSubID : MonoBehaviour
 
         if (subIDint % 2 == 0) // Check if SubID is even
         {
-            sceneorder = new int[] { 2, 3 };
+            sceneorder = new string[] { "MapA", "MapB" }; // The scene order is under File-Build Settings
         }
         else // SubID is odd
         {
-            sceneorder = new int[] { 3, 2 };
+            sceneorder = new string[] { "MapB", "MapA" };
         }
         Debug.Log(sceneorder[0]);
     }
