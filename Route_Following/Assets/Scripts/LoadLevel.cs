@@ -22,8 +22,7 @@ public class LoadLevel : MonoBehaviour
             return; // Exit the method
         }
 
-        //string sceneName = System.IO.Path.GetFileNameWithoutExtension(gamescenes[sceneSequence[i]].path);
-        SceneManager.LoadScene(sceneSequence[i]);
+        SceneManager.LoadScene(sceneSequence[i]); // open the corresponding scene in the scene order
         Debug.Log(sceneSequence[i]);
         i++;
         

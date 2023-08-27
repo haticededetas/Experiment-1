@@ -291,7 +291,7 @@ public class PlayerMovement : MonoBehaviour
                 {
                     isLookingAtFirstLook = true;
                     RotateTowardsNextDecisionPoint(currentDecision);
-                    //RotateTowardsNextDecisionPoint(currentDecision.target);
+                    
 
                     decCorrect = true; //decision is correct                 
 
@@ -429,6 +429,8 @@ public class PlayerMovement : MonoBehaviour
     {
         float elapsedTime = 0f;
         float rotationDuration = 1f; // Duration of rotation (adjust as needed)
+        float rotationSpeed = 5f;    // Rotation speed parameter (adjust as needed)
+
 
         Quaternion startRotation = transform.rotation;
 
@@ -440,7 +442,8 @@ public class PlayerMovement : MonoBehaviour
             float t = Mathf.Clamp01(elapsedTime / rotationDuration);
 
             // Slerp between the start rotation and the target rotation
-            transform.rotation = Quaternion.Slerp(startRotation, targetRotation, t);
+            transform.rotation = Quaternion.SlerpUnclamped(startRotation, targetRotation, 1 - Mathf.Exp(-rotationSpeed * t));
+
 
             yield return null;
         }
