@@ -6,9 +6,16 @@ using System.IO;
 using System;
 using UnityEngine.UIElements;
 using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
+
 {
+
+    JoyStickControl JSinputs;
+    Vector2 rotate; // to save rotation amount in the joystick
+    Vector2 rotateLeft; // to save rotation amount in the joystick
+
     public enum CorrectAnswer
     {
         A,
@@ -84,7 +91,7 @@ public class PlayerMovement : MonoBehaviour
     public DecisionPoint[] decisionPoints; // Array of decision points
 
 
-    private float rotationSpeed = 30f; // Speed at which the player rotates towards the target
+    private float rotationSpeed = 15f; // Speed at which the player rotates towards the target
     private float rotationTimeLimit = 30f; // Time limit for rotation (in seconds)
 
     public NavMeshAgent navMeshAgent; // Reference to the NavMeshAgent component
@@ -126,8 +133,28 @@ public class PlayerMovement : MonoBehaviour
     private float RT_mistake2 = 0;
     private float RT_mistake3 = 0;
 
+
+    // PREPARE JOYSTICK RESPONSES
+    private void Awake()
+    {
+        // Reach joystick response actions and name them as inputs
+        JSinputs = new JoyStickControl();
+    }
+
+    private void OnEnable()
+    {
+        JSinputs.Enable();
+    }
+
+    private void OnDisable()
+    {
+        JSinputs.Disable();
+    }
+
     private void Start()
     {
+       
+        
         // Get the name of the current scene
         string currentSceneName = SceneManager.GetActiveScene().name;
         string testNumber = LoadLevel.i.ToString();
@@ -138,6 +165,7 @@ public class PlayerMovement : MonoBehaviour
 
 
         navMeshAgent = GetComponent<NavMeshAgent>();
+        navMeshAgent.speed = 6f; // Adjust the value as needed
         navMeshAgent.autoBraking = false; // Disable auto-braking to allow for smooth rotation
 
         // Allow rotation from the start
@@ -172,6 +200,20 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
+
+        // Define JoyStick Responses
+        // Here I defined booleans to later call in the corresponding places.
+        // These will be true if the corresponding keys are pressed.
+
+        bool RotateL = JSinputs.Response.RotateLeft.ReadValue<float>() > 0.1; // Rotate left
+        bool RotateR = JSinputs.Response.RotateRight.ReadValue<float>() > 0.1; // Rotate right
+
+        bool MakeDec = JSinputs.Response.MakeDec.ReadValue<float>() > 0.1; // Move to the decision phase
+
+        bool TurnRight = JSinputs.Response.TurnRight.ReadValue<float>() > 0.1; // turn right decision
+        bool TurnLeft = JSinputs.Response.TurnLeft.ReadValue<float>() > 0.1; // turn left decision
+        bool GoSt = JSinputs.Response.Straight.ReadValue<float>() > 0.1; // go straight decision
+
         if (shouldMove)
         {
             alertMessageComponent.HideAlert();
@@ -184,6 +226,7 @@ public class PlayerMovement : MonoBehaviour
 
                 // Increment the current decision index
                 currentDecisionIndex++;
+                Debug.Log(currentDecisionIndex);
 
                 // Check if all decision points have been reached
                 if (currentDecisionIndex >= decisionPoints.Length)
@@ -234,25 +277,31 @@ public class PlayerMovement : MonoBehaviour
             }
             else if (!decCorrect)
             {
-                string errorMessage = "Your decision is wrong. You can rotate again or make a new response after pressing the space button.";
+                string errorMessage = "Your answer is wrong. You can rotate again or make a new response after pressing to the Button A.";
                 alertMessageComponent.ShowAlert(errorMessage);
             }
 
 
             rotationTimer += Time.deltaTime;
 
-            if (Input.GetKey(KeyCode.RightArrow))
+            
+
+            //Rotation Response for the keyboard 
+            if (Input.GetKey(KeyCode.RightArrow) || RotateR)
             {
                 transform.Rotate(Vector3.up, rotationSpeed * Time.deltaTime);
             }
-            else if (Input.GetKey(KeyCode.LeftArrow))
+            else if (Input.GetKey(KeyCode.LeftArrow) || RotateL)
             {
                 transform.Rotate(Vector3.up, -rotationSpeed * Time.deltaTime);
             }
 
 
+            
+
+
             // Check if the rotation time limit has been reached or space button is pressed
-            if (rotationTimer >= rotationTimeLimit || Input.GetKeyDown(KeyCode.Space))
+            if (rotationTimer >= rotationTimeLimit || Input.GetKeyDown(KeyCode.Space) || MakeDec)
             {
 
                 transform.rotation = initialRotation;
@@ -281,12 +330,12 @@ public class PlayerMovement : MonoBehaviour
             DecisionPoint currentDecision = decisionPoints[currentDecisionIndex];
 
             // Check if the input is one of the allowed response options
-            if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.X))
+            if (TurnLeft || GoSt || TurnRight || Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.X))
             {
                 // Check if the response is correct
-                if ((Input.GetKeyDown(KeyCode.A) && currentDecision.correctAnswer == CorrectAnswer.A) ||
-                    (Input.GetKeyDown(KeyCode.W) && currentDecision.correctAnswer == CorrectAnswer.W) ||
-                    (Input.GetKeyDown(KeyCode.D) && currentDecision.correctAnswer == CorrectAnswer.D) ||
+                if (((TurnLeft || Input.GetKeyDown(KeyCode.A)) && currentDecision.correctAnswer == CorrectAnswer.A) ||
+                    ((GoSt || Input.GetKeyDown(KeyCode.W)) && currentDecision.correctAnswer == CorrectAnswer.W) ||
+                    ((TurnRight || Input.GetKeyDown(KeyCode.D)) && currentDecision.correctAnswer == CorrectAnswer.D) ||
                     (Input.GetKeyDown(KeyCode.X) && currentDecision.correctAnswer == CorrectAnswer.X))
                 {
                     isLookingAtFirstLook = true;
@@ -387,7 +436,7 @@ public class PlayerMovement : MonoBehaviour
                     }
 
                     decCorrect = false;
-                    string errorMessage = "Your decision is wrong. You can rotate again or make a new response after pressing the space button.";
+                    string errorMessage = "Your decision is wrong. You can rotate again or make a new response after pressing to the Button A.";
                     alertMessageComponent.ShowAlert(errorMessage);
 
                     rotationTimer = 0f;
@@ -429,7 +478,7 @@ public class PlayerMovement : MonoBehaviour
     {
         float elapsedTime = 0f;
         float rotationDuration = 1f; // Duration of rotation (adjust as needed)
-        float rotationSpeed = 5f;    // Rotation speed parameter (adjust as needed)
+        float rotationSpeed = 1f;    // Rotation speed parameter (adjust as needed)
 
 
         Quaternion startRotation = transform.rotation;
@@ -454,4 +503,10 @@ public class PlayerMovement : MonoBehaviour
         // Invoke the callback function when the rotation is complete
         onRotationComplete?.Invoke();
     }
+
+    
+    
+
 }
+
+
