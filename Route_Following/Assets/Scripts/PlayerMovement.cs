@@ -388,9 +388,7 @@ public class PlayerMovement : MonoBehaviour
 
                     // name data file
 
-                    string filePath = Path.Combine(Application.dataPath, fileName);
-                    //SaveDecisionPointsToCSV();
-                    csvExporter.ExportListToCsv(data_list, filePath);
+                    
 
 
                     // reset the RTs and the error number
@@ -445,6 +443,10 @@ public class PlayerMovement : MonoBehaviour
 
 
                 }
+
+                string filePath = Path.Combine(Application.dataPath, fileName);
+                //SaveDecisionPointsToCSV();
+                csvExporter.ExportListToCsv(data_list, filePath);
             }
 
 
