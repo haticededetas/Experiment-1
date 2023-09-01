@@ -133,10 +133,12 @@ public class PlayerMovement : MonoBehaviour
     private float RT_mistake2 = 0;
     private float RT_mistake3 = 0;
 
-
+    
     // PREPARE JOYSTICK RESPONSES
     private void Awake()
     {
+
+        
         // Reach joystick response actions and name them as inputs
         JSinputs = new JoyStickControl();
     }
@@ -153,8 +155,10 @@ public class PlayerMovement : MonoBehaviour
 
     private void Start()
     {
-       
-        
+
+
+        UnityEngine.Cursor.visible = false;
+
         // Get the name of the current scene
         string currentSceneName = SceneManager.GetActiveScene().name;
         string testNumber = LoadLevel.i.ToString();
@@ -200,7 +204,7 @@ public class PlayerMovement : MonoBehaviour
 
     private void Update()
     {
-
+        
         // Define JoyStick Responses
         // Here I defined booleans to later call in the corresponding places.
         // These will be true if the corresponding keys are pressed.
@@ -210,12 +214,12 @@ public class PlayerMovement : MonoBehaviour
 
         bool MakeDec = JSinputs.Response.MakeDec.ReadValue<float>() > 0.1; // Move to the decision phase
 
-        bool TurnRight = JSinputs.Response.TurnRight.ReadValue<float>() > 0.1; // turn right decision
-        bool TurnLeft = JSinputs.Response.TurnLeft.ReadValue<float>() > 0.1; // turn left decision
-        bool GoSt = JSinputs.Response.Straight.ReadValue<float>() > 0.1; // go straight decision
 
         if (shouldMove)
         {
+            JSinputs.Disable(); // disable Unity Inputs
+            decisionTimer = 0f; // reset timer
+
             alertMessageComponent.HideAlert();
             // Check if the player has reached the current decision point
             if (navMeshAgent.enabled && !navMeshAgent.pathPending && navMeshAgent.remainingDistance <= navMeshAgent.stoppingDistance)
@@ -231,14 +235,17 @@ public class PlayerMovement : MonoBehaviour
                 // Check if all decision points have been reached
                 if (currentDecisionIndex >= decisionPoints.Length)
                 {
-
+                    
                     Debug.Log("All decision points reached!");
+                    UnityEngine.Cursor.visible = true;
                     shouldMove = false;
 
 
                     // SAVE DATA
                     // name data file
-                    string filePath = Path.Combine(Application.dataPath, fileName);
+                    string directoryPath = @"C:\Users\VRLab\OneDrive - Universität Mannheim\Desktop\VR_Experiment_1";
+
+                    string filePath = Path.Combine(directoryPath, fileName);
 
 
                     //SaveDecisionPointsToCSV();
@@ -269,6 +276,10 @@ public class PlayerMovement : MonoBehaviour
         // Rotate the player using keyboard arrows for a limited time
         if (isRotating)
         {
+            
+            rotationTimer += Time.deltaTime;
+            JSinputs.Enable(); // Enable JosStick Inputs
+
             if (decCorrect)
             {
                 string rotationMessage = "Please rotate around to see your options and press button to proceed to the decision phase.";
@@ -282,9 +293,6 @@ public class PlayerMovement : MonoBehaviour
             }
 
 
-            rotationTimer += Time.deltaTime;
-
-            
 
             //Rotation Response for the keyboard 
             if (Input.GetKey(KeyCode.RightArrow) || RotateR)
@@ -314,7 +322,7 @@ public class PlayerMovement : MonoBehaviour
                 string message = rotationTimer >= rotationTimeLimit ? "Your time is up, please make your decision." : "Please make your decision.";
                 alertMessageComponent.ShowAlert(message);
 
-                decisionTimer += Time.deltaTime;
+                
             }
 
 
@@ -327,10 +335,26 @@ public class PlayerMovement : MonoBehaviour
         // Check if the 'a', 'w', 'd', or 'x' key is pressed to start moving towards the next decision point
         if (canMakeDecision && currentDecisionIndex < decisionPoints.Length)
         {
+
+
+            //bool TurnRight = JSinputs.Response.TurnRight.ReadValue<float>() == 1; // turn right decision
+            //bool TurnLeft = JSinputs.Response.TurnLeft.ReadValue<float>() == 1; // turn left decision
+            // bool GoSt = JSinputs.Response.Straight.ReadValue<float>() == 1; // go straight decision
+            bool TurnRight = JSinputs.Response.TurnRight.WasReleasedThisFrame();
+            bool TurnLeft = JSinputs.Response.TurnLeft.WasReleasedThisFrame();
+            bool GoSt = JSinputs.Response.Straight.WasReleasedThisFrame();
+
+
+
+            decisionTimer += Time.deltaTime;
+            JSinputs.Enable(); // Enable JosStick Inputs
+
             DecisionPoint currentDecision = decisionPoints[currentDecisionIndex];
 
             // Check if the input is one of the allowed response options
-            if (TurnLeft || GoSt || TurnRight || Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.X))
+            if (TurnLeft || GoSt || TurnRight || 
+                Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.W) || 
+                Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.X))
             {
                 // Check if the response is correct
                 if (((TurnLeft || Input.GetKeyDown(KeyCode.A)) && currentDecision.correctAnswer == CorrectAnswer.A) ||
@@ -385,10 +409,13 @@ public class PlayerMovement : MonoBehaviour
 
                     });
 
+                    string directoryPath = @"C:\Users\VRLab\OneDrive - Universität Mannheim\Desktop\VR_Experiment_1";
 
-                    // name data file
-
-                    
+                    // name the data file
+                    string filePath = Path.Combine(directoryPath, fileName);
+                    //string filePath = Path.Combine(Application.persistentDataPath, fileName);
+                    //SaveDecisionPointsToCSV();
+                    csvExporter.ExportListToCsv(data_list, filePath);
 
 
                     // reset the RTs and the error number
@@ -444,13 +471,10 @@ public class PlayerMovement : MonoBehaviour
 
                 }
 
-                string filePath = Path.Combine(Application.dataPath, fileName);
-                //SaveDecisionPointsToCSV();
-                csvExporter.ExportListToCsv(data_list, filePath);
             }
 
 
-
+            
 
         }
 

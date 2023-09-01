@@ -1,7 +1,0 @@
-DP_Name;Index_Number;ErrorNumber;RT_rotation_correct;RT_decision_correct;RT_correct;RT_rotation_mistake1;RT_decision_mistake1;RT_mistake1;RT_rotation_mistake2;RT_decision_mistake2;RT_mistake2;RT_rotation_mistake3;RT_decision_mistake3;RT_mistake3
-DP1;0;0;10,03489;0,0291529;10,06405;0;0;0;0;0;0;0;0;0
-DP2;1;0;1,928235;0,0358863;1,964121;0;0;0;0;0;0;0;0;0
-DP3;2;0;1,364426;0,0590632;1,423489;0;0;0;0;0;0;0;0;0
-DP4;3;0;0,5677701;0,080501;0,6482711;0;0;0;0;0;0;0;0;0
-DP5;4;1;2,094255;0,1118879;2,206143;3,646664;0,0960411;3,742706;0;0;0;0;0;0
-DP6;5;0;2,605866;0,136281;2,742147;0;0;0;0;0;0;0;0;0

@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
-using UnityEditor.SearchService;
+//using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -15,7 +15,7 @@ public class GetSubID : MonoBehaviour
 
     public static int subIDint; 
 
-    public static EditorBuildSettingsScene[] scenes; // I made it static to call from other scripts
+    // public static EditorBuildSettingsScene[] scenes; // I made it static to call from other scripts
 
     public void ReadSubID(string s)
     {
@@ -47,7 +47,7 @@ public class GetSubID : MonoBehaviour
         // Format the current date and time as a string
         exptime = currentDateTime.ToString("yyyy-MM-dd HH-mm-ss");
 
-        scenes = EditorBuildSettings.scenes;
+        //scenes = EditorBuildSettings.scenes;
 
         
 

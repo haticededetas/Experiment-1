@@ -10,7 +10,7 @@ public class LoadLevel : MonoBehaviour
     public static int i = 0;
 
 
-    private EditorBuildSettingsScene[] gamescenes = GetSubID.scenes;
+    //private EditorBuildSettingsScene[] gamescenes = GetSubID.scenes;
     private string[] sceneSequence = GetSubID.sceneorder;
 
     public void LoadNextMap ()
